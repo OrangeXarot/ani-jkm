@@ -1,0 +1,38 @@
+#!/bin/bash
+
+## Setting site
+site=$(echo "https://gogoanime.film")
+
+## Clearing name spaces
+query=$(echo "$*" | tr ' ' '+')
+
+## Checking for name args
+if [ "$*" = "" ]
+then
+    read -p "Select anime: " query
+    query=$(echo "$query" | tr ' ' '+')
+fi
+
+if [ "$query" = "" ]
+then
+    echo "Empty input"
+    exit
+fi
+
+## Finding anime
+anime=$(curl -s "$site/search.html?keyword=$query" | grep -Eo "/category/[a-zA-Z0-9?%-]*" | head -n 1 | sed  "s/\/category\///g")
+name=$(echo "$anime" | tr '-' ' ')
+echo "Anime found: $name"
+
+## Fetching and selecting episodes
+episodes=$(curl -s "$site/category/$anime" | grep -Eo "0\-[0-9]*" | head -n 1 | sed "s/0-//g")
+read -p "Select episode (1-$episodes): " EP
+
+if [ "$EP" = "" ]
+then
+    EP=1
+fi
+
+## finding stream and playing it in a browser
+link=$(curl -s "$site/$anime-episode-$EP" | grep -Eo "gogoplay.io/streaming.php?[a-zA-Z0-9?+&%=-]*"| head -n 1)
+exec librewolf "https://$link" &> /dev/null &
