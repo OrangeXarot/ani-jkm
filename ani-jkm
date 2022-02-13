@@ -71,7 +71,7 @@ function episodeSelect(){
     [ "$EP" = "exit" ] && exit
     [ "$EP" -eq 0 ] && animeOptions
     [ "$EP" -eq 69 ] && echo -e "$brown nice$colnull"
-    [ "$EP" -gt "$episodes" ] && echo -e "$red The episode doesn\'t exist$colnull" && episodeSelect
+    [ "$EP" -gt "$episodes" ] && echo -e "$red The episode doesn't exist$colnull" && episodeSelect
     streamEpisode
 }
 
@@ -104,7 +104,7 @@ function episodeCtrl(){
 function listFav(){
     num=""
     list=$(sed '=' ~/.config/ani-jkm/favorites.txt | tr '-' ' ' | sed 'N; s/\n/\\e[0m - /' | sed 's/^/ \\e[1;34m/')
-    [ -z "$list" ] && echo "You have no favorites" && menu
+    [ -z "$list" ] && echo -e "$red You have no favorites$colnull" && menu
     echo "Favorites list - watch or remove an anime"
     echo -e "$list"
     echo -e "$blue 0 $colnull- go back"
