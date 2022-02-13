@@ -26,11 +26,9 @@ colnull="\e[0m"
 site=$(echo "https://gogoanime.film") # change when domain changes
 browser=$(echo "librewolf") # change browser for the one you are using
 
-if ! [ -d "~/.config/ani-jkm" ]; then
-    mkdir -p ~/.config/ani-jkm/
-    touch ~/.config/ani-jkm/history.txt
-    touch ~/.config/ani-jkm/favorites.txt
-fi
+if ! [ -d "~/.config/ani-jkm" ]; then mkdir -p ~/.config/ani-jkm/; fi
+if ! [ -d "~/.config/ani-jkm/favorites.txt" ]; then touch ~/.config/ani-jkm/favorites.txt; fi
+if ! [ -d "~/.config/ani-jkm/history.txt" ]; then touch ~/.config/ani-jkm/history.txt; fi
 
 function searchAnime(){
     ## Search Anime
@@ -46,10 +44,22 @@ function searchAnime(){
 }
 function findAnime(){
     # Finding anime
-    [ -z "$anime" ] && anime=$(curl -s "$site/search.html?keyword=$query" | grep -Eo "/category/[a-zA-Z0-9?%-]*" | head -n 1 | sed  "s/\/category\///g")
+    num=""
+    [ -z "$anime" ] && anime=$(curl -s "$site/search.html?keyword=$query" | grep -Eo "/category/[a-zA-Z0-9?%-]*" | sed  "s/\/category\///g" | uniq )
     [ -z "$anime" ] && echo -e "$red Nothing found$colnull" && searchAnime
+    list=$(echo "$anime" | sed '=' | tr '-' ' ' | sed 'N; s/\n/\\e[0m - /' | sed 's/^/ \\e[1;34m/')
+    [ -z "$list" ] && echo "Nothing found" && findAnime
+    echo "Favorites list - watch or remove an anime"
+    echo -e "$list"
+    echo -e "$blue 0 $colnull- go back"
+    read -p "Choose anime (1): " num
+    [ -z "$num" ] && num=1
+    [ "$num" = "exit" ] && exit
+    [ "$num" -eq 0 ] && searchAnime
+    anime=$(echo "$anime" | sed -n -e "$num p")
+    [ -z "$anime" ] && echo "Invalid Number" && listFav
     name=$(echo "$anime" | tr '-' ' ')
-    echo -e "Anime found: $cyan$name$colnull"
+    echo -e "Anime selected: $cyan$name$colnull"
     animeOptions
 }
 
